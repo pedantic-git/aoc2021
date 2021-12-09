@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'paint'
-
 class Grid
   attr_reader :width, :grid
   
@@ -10,27 +8,21 @@ class Grid
     @grid = lines.flat_map {|l| l.split('').map(&:to_i)}
   end
   
-  def low_points
-    grid.select.with_index {|_,i| low_point?(i) }
+  def low_point_indexes
+    grid.each_index.select {|i| low_point?(i) }
   end
   
-  def total_low_points_risk
-    lp = low_points
-    lp.sum + lp.length
+  def basins
+    low_point_indexes.map {|i| basin(i)}
   end
   
-  def visual
-    "".tap do |out|
-      grid.each_index do |i|
-        if low_point?(i)
-          out << Paint[grid[i], :red, :bright]
-        else
-          out << Paint[grid[i], [0, grid[i]*25+30, 0]]
-        end
-        out << "\n" if (i+1)%width==0
-      end
-    end
-  end  
+  def basin_sizes
+    basins.map(&:length)
+  end
+  
+  def product_of_three_largest_basins
+    basin_sizes.sort.last(3).reduce(&:*)
+  end
   
   private
   
@@ -51,8 +43,18 @@ class Grid
   def low_point?(i)
     neighbours(i).all? {|n| grid[n] > grid[i]}
   end
+  
+  # Give it a point, it will give you all the indexes in its basin
+  def basin(i, seen=[])
+    return [] if grid[i] == 9
+    seen += [i]
+    neighbours(i).each do |n|
+      next if seen.include? n
+      seen |= basin(n, seen)
+    end
+    seen
+  end
 end
 
 g = Grid.new($stdin.readlines.map(&:chomp))
-puts g.visual
-puts g.total_low_points_risk
+puts g.product_of_three_largest_basins
