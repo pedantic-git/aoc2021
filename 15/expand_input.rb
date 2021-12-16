@@ -23,6 +23,6 @@ rows = [row_starting_with(first_cell)]
 
 (1..4).each {|i| rows << row_starting_with(rows[0][i])}
 
-rows.flatten.each_slice(width) do |slice|
-  puts slice.join
+rows.each do |row|
+  puts row[0].zip(*row[1..4]).flatten.each_slice(width).map(&:join).join("\n")
 end
