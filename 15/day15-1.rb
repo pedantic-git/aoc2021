@@ -47,7 +47,7 @@ class Chitons
   
   # Get the entry in q with the minimum dist
   def next_best_guess
-    dist.slice(*q.to_a).sort_by {|k,v| v}.first&.first
+    q.min_by {|v| dist[v]}
   end
   
   # Get the 4 neighbours of a given pair of coords
