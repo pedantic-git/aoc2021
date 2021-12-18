@@ -14,6 +14,27 @@ class Packet
     version + subpackets.sum(&:version_sum)
   end
   
+  def value
+    case type
+    when 0
+      subpackets.map(&:value).sum
+    when 1
+      subpackets.map(&:value).reduce(&:*)
+    when 2
+      subpackets.map(&:value).min
+    when 3
+      subpackets.map(&:value).max
+    when 4
+      literal
+    when 5
+      subpackets[0].value > subpackets[1].value ? 1 : 0
+    when 6
+      subpackets[0].value < subpackets[1].value ? 1 : 0
+    when 7
+      subpackets[0].value == subpackets[1].value ? 1 : 0
+    end
+  end
+  
   private
   
   def parse!
@@ -66,4 +87,4 @@ INPUT = "2056FA18025A00A4F52AB13FAB6CDA779E1B2012DB003301006A35C7D882200C43289F0
 bits = [INPUT].pack("H*").unpack('B*').first.split('')
 
 b = Packet.new(bits)
-p b.version_sum
+p b.value
