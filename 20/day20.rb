@@ -68,6 +68,6 @@ algo = algo_str.delete("\n").split('').map {|c| c == '#' }
 input = input_str.lines.map {|l| l.chomp.split('').map {|c| c == '#' ? 1:0}}
 
 image = Image.new(algo, input)
-2.times { image.enhance! }
+50.times { image.enhance! }
 puts image
 puts image.count_lit
