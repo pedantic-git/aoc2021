@@ -2,10 +2,12 @@
 
 class Image
   attr_reader :algo, :image
+  attr_accessor :border_colour
   
   def initialize(algo, input)
     @algo = algo
     @image = input
+    @border_colour = 0
   end
   
   def to_s
@@ -21,6 +23,7 @@ class Image
         end
       end
     end
+    self.border_colour = algo[-border_colour] ? 1 : 0
   end
   
   def count_lit
@@ -31,10 +34,10 @@ class Image
   
   def add_border!
     image.each do |row|
-      row.unshift(0)
-      row.push(0)
+      row.unshift(border_colour)
+      row.push(border_colour)
     end
-    blank_row = Array.new(image.first.length, 0)
+    blank_row = Array.new(image.first.length, border_colour)
     image.unshift(blank_row)
     image.push(blank_row.dup)
   end
@@ -51,7 +54,7 @@ class Image
       [x-1, y+1], [x, y+1], [x+1, y+1]
     ].map do |x,y|
       if x < 0 || y < 0 || x >= copy.first.length || y >= copy.length
-        0
+        border_colour
       else
         copy[y][x]
       end
