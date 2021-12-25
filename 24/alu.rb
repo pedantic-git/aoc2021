@@ -16,12 +16,13 @@ class ALU
   
   def mod!
     z2 = (26*(input[0]+15)) + input[1] + 8
-    reg['z'] = if input[3] == input[2]-7
+    z4 = if input[3] == input[2]-7
       z2
     else
       26*z2 + input[3] + 6
     end
-    input.shift(4)
+    reg['z'] = 26*z4 + input[4] + 13
+    input.shift(5)
   end
   
   def step!(instruction)
@@ -131,24 +132,24 @@ add y w # y = d3
 add y 6 # y = d3 + 6
 mul y x # y = (d3==d2-7) ? 0 : (6*d3)
 add z y ##### z = (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6
-inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 15
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 13
-mul y x
-add z y
+inp w # w = d4
+mul x 0 # x = 0
+add x z # x = (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6
+mod x 26 # x = (d3==d2-7) ? (d1 + 8) : (d3 + 6)
+div z 1 # noop
+add x 15 # x = (d3==d2-7) ? (d1 + 23) : (d3 + 21)
+eql x w # x = 0 
+eql x 0 # x = 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = 25
+add y 1 # y = 26
+mul z y # z = 26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 )
+mul y 0 # y = 0
+add y w # y = d4
+add y 13 # y = d4 + 13
+mul y x # y = d4 + 13
+add z y #### z = 26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13
 inp w
 mul x 0
 add x z
