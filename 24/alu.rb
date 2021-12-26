@@ -32,8 +32,27 @@ class ALU
     else
       26*z8 + input[9] + 13
     end
-    input.shift(10)
-    reg["z"] = z10
+    # refactor this
+    z10div26 = z10/26
+    
+    cond1 = if input[9] == input[8]-2
+      if input[7] == input[6] - 4
+        input[5] - 8
+      else
+        input[7] - 3
+      end
+    else
+      input[9] + 1
+    end
+    
+    z11 = if input[10] == cond1
+      z10div26
+    else
+      26*z10div26 + input[10] + 9
+    end
+    
+    input.shift(11)
+    reg["z"] = z11
   end
   
   def step!(instruction)
@@ -251,24 +270,24 @@ add y w # y = d9
 add y 13 # y = d9+13
 mul y x # y = d9==d8-2 ? 0 : d9+13
 add z y ##### z10 = d9==d8-2 ? z8 : 26*z8 + d9 + 13
-inp w
-mul x 0
-add x z
-mod x 26
-div z 26
-add x -12
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 9
-mul y x
-add z y
+inp w # w = d10
+mul x 0 # x = 0
+add x z # x = z10
+mod x 26 # x = d9==d8-2 ? (d7 == d6-4 ? d5+4 : d7+9) : d9+13
+div z 26 # z = z10div26 = d9==d8-2 ? z8div26 : z8 ## z8div26 = d7==d6-4 ? z7div26div26 : z7div26 ## z7div26div26 = (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13)
+add x -12 # x = cond1 = d9==d8-2 ? (d7 == d6-4 ? d5-8 : d7-3) : d9+1
+eql x w # x = d10==cond1 ? 1 : 0
+eql x 0 # x = d10==cond1 ? 0 : 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = d10==cond1 ? 0 : 25
+add y 1 # y = d10==cond1 ? 1 : 26
+mul z y # z = d10==cond1 ? z10div26 : 26*z10div26
+mul y 0 # y = 0
+add y w # y = d10
+add y 9 # y = d10+9
+mul y x # y = d10==cond1 ? 0 : d10+9
+add z y ##### z11 = d10==cond1 ? z10div26 : 26*z10div26 + d10+9
 inp w
 mul x 0
 add x z
