@@ -1,40 +1,15 @@
 #!/usr/bin/env ruby
 
-CON = [10, 12, 15, -9, 15, 10, 14, -5, 14, -7, -12, -10, -1, -11]
-ADJ = [15, 8,  2,  6,  13, 4,  1,  9,  5,  13, 9,   6,   2,  2]
+w = ARGV[0]&.split('')&.map(&:to_i) or fail "Please supply serial"
 
-serial = ARGV[0]&.split('')&.map(&:to_i) or fail "Please supply serial"
-
-z = 0
-
-p serial.map.with_index {|w,i| w+ADJ[i]}
-
-serial.each.with_index do |w,i|
-  mod = z%26
-  if CON[i] < 0
-    z /= 26
-    if w == mod + CON[i]
-      puts "yes"
-    else
-      z *= 26
-      z += w + ADJ[i]
-    end
-  else
-    z *= 26
-    z += w + ADJ[i]
-  end
+if (w[3]  == w[2]-7) && 
+   (w[7]  == w[6]-4) && 
+   (w[9]  == w[8]-2) && 
+   (w[10] == w[5]-8) &&
+   (w[11] == w[4]+3) &&
+   (w[12] == w[1]+7) &&
+   (w[13] == w[0]+4)
+  puts "PASS"
+else
+  puts "FAIL"
 end
-
-puts z
-
-# checks++ if d[i] == mod + con[i]
-# where mod is d[i]+adj[i] from the last failed check
-# passes if checks >= 7
-
-# passes if d3 == d2-7
-# passes if d7 == d6-4
-# passes if d9 == d8-2
-# passes if d10 == d5-8
-# passes if d11 == d4+3
-# passes if d12 == d1+7
-# passes if d13 == d0+4
