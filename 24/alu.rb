@@ -27,9 +27,13 @@ class ALU
     else
       26*z7div26 + input[7] + 9
     end
-    z9 = 26*z8 + input[8] + 5
-    input.shift(9)
-    reg["z"] = z9
+    z10 = if input[9] == input[8]-2
+      z8
+    else
+      26*z8 + input[9] + 13
+    end
+    input.shift(10)
+    reg["z"] = z10
   end
   
   def step!(instruction)
@@ -229,24 +233,24 @@ add y w # y = d8
 add y 5 # y = d8 + 5
 mul y x # y = d8 + 5
 add z y ##### z9 = (26 * z8) + d8 + 5
-inp w
-mul x 0
-add x z
-mod x 26
-div z 26
-add x -7
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 13
-mul y x
-add z y
+inp w # w = d9
+mul x 0 # x = 0
+add x z # x = z9
+mod x 26 # x = d8 + 5
+div z 26 # z = z8
+add x -7 # x = d8 - 2
+eql x w # x = d9 == d8-2 ? 1 : 0
+eql x 0 # x = d9 == d8-2 ? 0 : 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = d9==d8-2 ? 0 : 25
+add y 1 # y = d9==d8-2 ? 1 : 26
+mul z y # z = d9==d8-2 ? z8 : 26*z8
+mul y 0 # y = 0
+add y w # y = d9
+add y 13 # y = d9+13
+mul y x # y = d9==d8-2 ? 0 : d9+13
+add z y ##### z10 = d9==d8-2 ? z8 : 26*z8 + d9 + 13
 inp w
 mul x 0
 add x z
