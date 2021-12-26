@@ -45,14 +45,10 @@ class ALU
       input[9] + 1
     end
     
-    z11 = if input[10] == cond1
-      z10div26
-    else
-      26*z10div26 + input[10] + 9
-    end
+    z12 = (input[10] == cond1 ? z10div26 : 26*z10div26) + input[11] + 6
     
-    input.shift(11)
-    reg["z"] = z11
+    input.shift(12)
+    reg["z"] = z12
   end
   
   def step!(instruction)
@@ -288,24 +284,24 @@ add y w # y = d10
 add y 9 # y = d10+9
 mul y x # y = d10==cond1 ? 0 : d10+9
 add z y ##### z11 = d10==cond1 ? z10div26 : 26*z10div26 + d10+9
-inp w
-mul x 0
-add x z
-mod x 26
-div z 26
-add x -10
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 6
-mul y x
-add z y
+inp w # w = d11
+mul x 0 # x = 0
+add x z # x = z11
+mod x 26 # x = d10+9
+div z 26 # z = z11div26 = z11/26 = d10==cond1 ? z10div26div26 : z10div26
+add x -10 # x = -10
+eql x w # x = 0
+eql x 0 # x = 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = 25
+add y 1 # y = 26
+mul z y # z = d10==cond1 ? z10div26 : 26*z10div26
+mul y 0 # y = 0
+add y w # y = d11
+add y 6 # y = d11 + 6
+mul y x # y = d11 + 6
+add z y #### z12 = (d10==cond1 ? z10div26 : 26*z10div26) + d11 + 6
 inp w
 mul x 0
 add x z
