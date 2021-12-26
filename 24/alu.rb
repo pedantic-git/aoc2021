@@ -10,7 +10,7 @@ class ALU
   def initialize(input=[])
     @reg = {'w' => 0, 'x' => 0, 'y' => 0, 'z' => 0}
     @input = input
-    mod!
+    #mod!
     INSTRUCTIONS.each(&method(:step!))
   end
   
@@ -21,13 +21,19 @@ class ALU
     else
       26*z2 + input[3] + 6
     end
-    reg['z'] = 26*(26*(26*z4 + input[4] + 13) + input[5] + 4) + input[6] + 1
-    input.shift(7)
+    z7div26 = 26*(26*z4 + input[4] + 13) + input[5] + 4
+    z8 = if input[7] == input[6]-4
+      z7div26
+    else
+      26*z7div26 + input[7] + 9
+    end
+    input.shift(8)
+    reg["z"] = z8
   end
   
   def step!(instruction)
     case instruction
-    when /#/
+    #when /#/
       # no-op
     when /inp (\w)/
       reg[$1] = input.shift
@@ -77,7 +83,7 @@ mul y 0 # y = 0
 add y w # y = digits[0]
 add y 15 # y = digits[0] + 15
 mul y x # y = digits[0] + 15
-add z y ###### z = digits[0] + 15
+add z y ###### z1 = digits[0] + 15
 inp w # w = digits[1]
 mul x 0 # x = 0
 add x z # x = digits[0] + 15
@@ -95,7 +101,7 @@ mul y 0 # y = 0
 add y w # y = digits[1]
 add y 8 # y = digits[1] + 8
 mul y x # y = digits[1] + 8
-add z y ####### z = (26 * (d0 + 15)) + d1 + 8
+add z y ####### z2 = (26 * (d0 + 15)) + d1 + 8
 inp w # w = d2
 mul x 0 # x = 0
 add x z # x = (26 * (d0 + 15)) + d1 + 8
@@ -113,7 +119,7 @@ mul y 0 # y = 0
 add y w # y = d2
 add y 2 # y = d2 + 2
 mul y x # y = d2 + 2
-add z y ####### z = (26*((26 * (d0 + 15)) + d1 + 8)) + d2 + 2
+add z y ####### z3 = (26*((26 * (d0 + 15)) + d1 + 8)) + d2 + 2
 inp w # w = d3
 mul x 0 # x = 0
 add x z # x = (26*((26 * (d0 + 15)) + d1 + 8)) + d2 + 2
@@ -131,7 +137,7 @@ mul y 0 # y = 0
 add y w # y = d3
 add y 6 # y = d3 + 6
 mul y x # y = (d3==d2-7) ? 0 : (6*d3)
-add z y ##### z = (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6
+add z y ##### z4 = (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6
 inp w # w = d4
 mul x 0 # x = 0
 add x z # x = (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6
@@ -149,7 +155,7 @@ mul y 0 # y = 0
 add y w # y = d4
 add y 13 # y = d4 + 13
 mul y x # y = d4 + 13
-add z y #### z = 26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13
+add z y #### z5 = 26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13
 inp w # w = d5
 mul x 0 # x = 0
 add x z # x = 26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13
@@ -167,7 +173,7 @@ mul y 0 # y = 0
 add y w # y = d5
 add y 4 # y = d5 + 4
 mul y x # y = d5 + 4
-add z y ##### z = 26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4
+add z y ##### z6 = 26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4
 inp w # w = d6
 mul x 0 # x = 0
 add x z # x = 26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4
@@ -185,25 +191,25 @@ mul y 0 # y = 0
 add y w # y = d6
 add y 1 # y = d6 + 1
 mul y x # y = d6 + 1
-add z y ###### z = 26* (26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4) + d6 + 1
-inp w
-mul x 0
-add x z
-mod x 26
-div z 26
-add x -5
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 9
-mul y x
-add z y
+add z y ###### z7 = 26* (26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4) + d6 + 1
+inp w # w = d7
+mul x 0 # x = 0
+add x z # x = z7
+mod x 26 # x = d6 + 1 [the only part of z7 that's not a multiple of 26]
+div z 26 ###### z = z7div26 = (26* (26* ( (d3==d2-7) ? ((26*(d0+15)) + d1 + 8) : 26*((26*(d0+15)) + d1 + 8) + d3 + 6 ) + d4 + 13) + d5 + 4)
+add x -5 # x = d6 - 4
+eql x w # x = (d7 == d6 - 4 ? 1 : 0)
+eql x 0 # x = (d7 == d6 - 4 ? 0 : 1)
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = (d7 == d6 - 4 ? 0 : 25)
+add y 1 # y = (d7 == d6 - 4 ? 1 : 26)
+mul z y # z = d7==d6-4 ? z7div26 : 26*z7div26
+mul y 0 # y = 0
+add y w # y = d7
+add y 9 # y = d7 + 9
+mul y x # y = d7==d6-4 ? 0 : d7+9
+add z y #### z = d7==d6-4 ? z7div26 : 26*z7div26 + d7 + 9
 inp w
 mul x 0
 add x z
