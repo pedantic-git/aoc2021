@@ -44,8 +44,22 @@ class ALU
     else
       input[9] + 1
     end
+    
+    cond2 = if input[12] == input[11] - 5
+      if input[10] == cond1
+        z10/26/26%26
+      else
+        z10/26%26
+      end
+    else
+      if input[10] == cond1
+        z10/26%26
+      else
+        0
+      end
+    end - 11
         
-    z13 = if input[13] == input[11]-5
+    z13 = if input[12] == input[11]-5
       if input[10] == cond1
         z10div26/26
       else
@@ -53,14 +67,20 @@ class ALU
       end
     else
       if input[10] == cond1
-        z10div26 + input[13] + 2
+        z10div26 + input[12] + 2
       else
-        26*z10div26 + input[13] + 2
+        26*z10div26 + input[12] + 2
       end
     end
     
-    input.shift(13)
-    reg["z"] = z13
+    z14 = if input[13] == cond2
+      z13/26
+    else
+      z13/26*26 + input[13] + 2
+    end
+    
+    input.shift(14)
+    reg["z"] = z14
   end
   
   def step!(instruction)
@@ -314,39 +334,42 @@ add y w # y = d11
 add y 6 # y = d11 + 6
 mul y x # y = d11 + 6
 add z y #### z12 = (d10==cond1 ? z10div26 : 26*z10div26) + d11 + 6
-inp w # w = d13
+inp w # w = d12
 mul x 0 # x = 0
 add x z # x = z12
 mod x 26 # x = d11 + 6
 div z 26 # z = (d10==cond1 ? z10div26/26 : z10div26)
 add x -1 # x = d11 - 5
-eql x w # x = d13==d11-5 ? 1 : 0
-eql x 0 # x = d13==d11-5 ? 0 : 1
+eql x w # x = d12==d11-5 ? 1 : 0
+eql x 0 # x = d12==d11-5 ? 0 : 1
 mul y 0 # y = 0
 add y 25 # y = 25
-mul y x # y = d13==d11-5 ? 0 : 25
-add y 1 # y = d13==d11-5 ? 1 : 26
-mul z y # z = d13==d11-5 ? (d10==cond1 ? z10div26/26 : z10div26) : (d10==cond1 ? z10div26 : 26*z10div26)
+mul y x # y = d12==d11-5 ? 0 : 25
+add y 1 # y = d12==d11-5 ? 1 : 26
+mul z y # z = d12==d11-5 ? (d10==cond1 ? z10div26/26 : z10div26) : (d10==cond1 ? z10div26 : 26*z10div26)
+mul y 0 # y = 0
+add y w # y = d12
+add y 2 # y = d12 + 2
+mul y x # y = d12==d11-5 ? 0 : d12+2
+add z y #### z13 = d12==d11-5 ? (d10==cond1 ? z10div26/26 : z10div26) : (d10==cond1 ? z10div26 : 26*z10div26) + d12 + 2
+inp w # w = d13
+mul x 0 # x = 0
+add x z # x = z13
+mod x 26 # x = input[n] +/- m [fix this later]
+div z 26 # z = z13/26
+add x -11 # x = cond2 = input[n] +/- -11
+eql x w # x = d13 == cond2 ? 1 : 0
+eql x 0 # x = d13==cond2 ? 0 : 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = d13==cond2 ? 0 : 25
+add y 1 # y = d13==cond2 ? 1 : 26
+mul z y # z = d13==cond2 ? z13/26 : z13norem
 mul y 0 # y = 0
 add y w # y = d13
-add y 2 # y = d13 + 2
-mul y x # y = d13==d11-5 ? 0 : d13+2
-add z y #### z13 = d13==d11-5 ? (d10==cond1 ? z10div26/26 : z10div26) : (d10==cond1 ? z10div26 : 26*z10div26) + d13 + 2
-inp w
-mul x 0
-add x z
-mod x 26
-div z 26
-add x -11
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 2
-mul y x
-add z y
+add y 2 # y = d13+2
+mul y x # y = d13==cond2 ? 0 : d13+2
+add z y #### z14 = d13==cond2 ? z13/26 : z13norem + d13 + 2
+
+# z will not be 0 if
+# d14 does not match cond2
