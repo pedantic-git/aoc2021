@@ -10,7 +10,7 @@ class ALU
   def initialize(input=[])
     @reg = {'w' => 0, 'x' => 0, 'y' => 0, 'z' => 0}
     @input = input
-    #mod!
+    mod!
     INSTRUCTIONS.each(&method(:step!))
   end
   
@@ -27,13 +27,14 @@ class ALU
     else
       26*z7div26 + input[7] + 9
     end
-    input.shift(8)
-    reg["z"] = z8
+    z9 = 26*z8 + input[8] + 5
+    input.shift(9)
+    reg["z"] = z9
   end
   
   def step!(instruction)
     case instruction
-    #when /#/
+    when /#/
       # no-op
     when /inp (\w)/
       reg[$1] = input.shift
@@ -209,25 +210,25 @@ mul y 0 # y = 0
 add y w # y = d7
 add y 9 # y = d7 + 9
 mul y x # y = d7==d6-4 ? 0 : d7+9
-add z y #### z = d7==d6-4 ? z7div26 : 26*z7div26 + d7 + 9
-inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 14
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 5
-mul y x
-add z y
+add z y #### z8 = d7==d6-4 ? z7div26 : 26*z7div26 + d7 + 9
+inp w # w = d8
+mul x 0 # x = 0
+add x z # x = z8
+mod x 26 # x = d7==d6-4 ? d5+4 : d7+9
+div z 1 # no op
+add x 14 # x = d7==d4-4 ? d5+18 : d7+23
+eql x w # x = 0
+eql x 0 # x = 1
+mul y 0 # y = 0
+add y 25 # y = 25
+mul y x # y = 25
+add y 1 # y = 26
+mul z y # z = 26 * z8
+mul y 0 # y = 0
+add y w # y = d8
+add y 5 # y = d8 + 5
+mul y x # y = d8 + 5
+add z y ##### z9 = (26 * z8) + d8 + 5
 inp w
 mul x 0
 add x z
